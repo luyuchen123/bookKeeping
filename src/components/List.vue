@@ -261,10 +261,12 @@ export default defineComponent({
 .item {
   &-header {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 2fr;
     grid-template-rows: 1rem;
+    grid-column: 10px;
     border-bottom: 1px solid #ccc;
     .time {
+      padding-left: 5px;
       text-align: left;
       line-height: 1rem;
       font-size: 15px;

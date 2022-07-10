@@ -66,16 +66,11 @@
             timeType = 0;
           "
         />
-
         <van-calendar
           v-model:show="showCalendar"
           :min-date="minDate"
           :default-date="
-            timeType
-              ? timestap
-              : sellTimestap
-              ? new Date(timeType ? timestap : sellTimestap)
-              : new Date()
+            new Date(timeType ? timestap : sellTimestap ? sellTimestap : '')
           "
           @confirm="onConfirm"
         />

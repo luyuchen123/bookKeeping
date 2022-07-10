@@ -1,14 +1,22 @@
 <template>
   <van-search v-model="searchVal" placeholder="请输入搜索关键词" />
-  <typeList :list="typeList" @type-click="typeClick"></typeList>
+  <typeList
+    :list="typeList"
+    @type-click="typeClick"
+    @type-del="deleteIconType($event, typeCallBack)"
+    @type-edit="editClick"
+  ></typeList>
   <van-dialog
     v-model:show="overLayShow"
     show-cancel-button
     class="dialog"
     @confirm="handlerAdd"
-    @cancel="overLayShow = false"
+    @cancel="
+      overLayShow = false;
+      editIconObj.value = {};
+    "
   >
-    <basic-form ref="formRef"></basic-form>
+    <basic-form ref="formRef" :edit-params="editIconObj"></basic-form>
   </van-dialog>
   <van-popup
     v-model:show="show"
@@ -30,6 +38,7 @@ import { useStore } from "vuex";
 import getImage from "@/mixins/getImage";
 import { Dialog, Notify } from "vant";
 import router from "@/router";
+import typeOpt from "@/mixins/type";
 export default defineComponent({
   components: {
     typeList,
@@ -57,7 +66,7 @@ export default defineComponent({
           typeList.value.forEach((item) => {
             item.iconClass = getImage().getTypeIcon(item.iconClass);
           });
-          typeList.value.push(emptyTypeItem);
+          typeList.value.unshift(emptyTypeItem);
           formRef.value?.clear();
         } else {
           typeList.value.push(emptyTypeItem);
@@ -95,6 +104,7 @@ export default defineComponent({
 
     const nowClickId = ref<string>("");
     const typeClick = (_id: string) => {
+      editIconObj.value = {};
       //增加类别
       if (_id === "-1") {
         overLayShow.value = true;
@@ -127,12 +137,39 @@ export default defineComponent({
       store.commit("setEditorIconId", { class: _id });
       show.value = true;
     };
-    //增添类别的显示
+
+    //编辑类别
+    const editIconObj = ref();
+    const editClick = (params: Iicon) => {
+      editIconObj.value = params;
+      overLayShow.value = true;
+    };
+
+    //删除类别
+    const { deleteIconType } = typeOpt;
+    const typeCallBack = (errStatus: boolean) => {
+      if (!errStatus) {
+        Notify({ type: "success", message: "删除成功" });
+        getTypeList();
+      }
+    };
+
+    //增加类别、修改类别
     const overLayShow = ref<boolean>(false);
     const formRef = ref();
     const handlerAdd = async () => {
       const { valid, data } = await formRef.value.onSubmit();
       if (valid) {
+        if (editIconObj.value._id) {
+          const callback: ICallBack = (errStatus) => {
+            !errStatus && Notify({ type: "success", message: "修改类别成功" });
+            editIconObj.value = {};
+            overLayShow.value = false;
+            getTypeList();
+          };
+          service.editType(data, callback);
+          return;
+        }
         const callback: ICallBack = (errStatus) => {
           !errStatus && Notify({ type: "success", message: "新增类别成功" });
           overLayShow.value = false;
@@ -180,12 +217,15 @@ export default defineComponent({
       searchVal,
       typeList,
       formRef,
+      editIconObj,
       handlerAdd,
       typeClick,
+      editClick,
+      typeCallBack,
+      deleteIconType,
       ajaxAddBookKeepingItem,
     };
   },
 });
 </script>
-<style lang="less" scoped>
-</style>
+<style lang="less" scoped></style>

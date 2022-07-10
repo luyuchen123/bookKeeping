@@ -1,28 +1,34 @@
 declare interface ICallBack {
-  (errStatus: boolean, res?: any): void
+  (errStatus: boolean, res?: any): void;
 }
 declare interface IAxoisResponse {
-  data: any,
-  errStatus: number
+  data: any;
+  errStatus: number;
 }
 declare interface Ifile {
-  file?: any,
-  content?: string
+  file?: any;
+  content?: string;
 }
 declare interface Ilogin {
-  UserName: string,
-  Password: string
+  UserName: string;
+  Password: string;
 }
 declare interface IRegister {
-  UserName: string,
-  Password: string
+  UserName: string;
+  Password: string;
 }
 declare interface IUserDetail {
-  UserName: string,
-  Phone: string,
-  backgroundImage: string,
-  headPortraitImage: string,
-  isOpenStock: boolean,
+  UserName: string;
+  Phone: string;
+  backgroundImage: string;
+  headPortraitImage: string;
+  isOpenStock: boolean;
+}
+
+interface Iicon {
+  _id?: string;
+  name: string;
+  iconClass: string;
 }
 
 // declare interface IAxiosUserDetail extends IUserDetail {

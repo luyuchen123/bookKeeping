@@ -50,6 +50,7 @@ export default defineComponent({
     //当前在哪个tab
     const activeTabName = computed({
       set(val: string) {
+        store.commit("setTokenRefreshFlag", false);
         Storage.set("activeTab", val);
         store.commit("setTabActive", val);
       },

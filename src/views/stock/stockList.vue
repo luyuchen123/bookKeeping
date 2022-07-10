@@ -362,7 +362,8 @@ export default defineComponent({
     grid-template-columns: 40px repeat(2, 1fr);
   }
   /deep/ .van-swipe-cell__right {
-    top: -10px;
+    display: flex;
+    align-items: center;
   }
   &-list-show {
     position: relative;

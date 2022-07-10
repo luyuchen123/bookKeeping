@@ -44,7 +44,6 @@ export default defineComponent({
   setup(props, { emit }) {
     //编辑时的值
     onMounted(() => {
-      console.warn(props);
       if (props.editParams) {
         mark.value = props.editParams.remarks;
         num.value = props.editParams.amount;

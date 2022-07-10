@@ -20,10 +20,11 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, nextTick, ref } from "vue";
+import { defineComponent, nextTick, ref, watch } from "vue";
 import { useStore } from "vuex";
 export default defineComponent({
-  setup() {
+  props: ["editParams"],
+  setup(props) {
     const store = useStore();
     const form = ref();
     const name = ref("");
@@ -32,9 +33,10 @@ export default defineComponent({
       return new Promise((resolve) => {
         if (form.value?.validate() && fileList.value.length) {
           const file: any = fileList.value[0];
-          console.log(file);
           const formdata = new FormData();
-          formdata.append("file", file.file, file.file.name);
+          file.file && formdata.append("file", file.file, file.file.name);
+          props?.editParams?._id &&
+            formdata.append("iconId", props.editParams._id); //编辑字段
           formdata.append("name", name.value);
           formdata.append("type", store.state.nowType);
           return resolve({
@@ -49,10 +51,26 @@ export default defineComponent({
     };
 
     const clear = () => {
-      console.warn("clear");
       name.value = "";
       fileList.value = [];
     };
+
+    watch(
+      () => props.editParams,
+      (val: Iicon) => {
+        console.log(val);
+        if (val._id) {
+          name.value = val.name;
+          (fileList.value as any) = [{ url: val.iconClass, isImage: true }];
+        } else {
+          clear();
+        }
+      },
+      {
+        immediate: true,
+        deep: true,
+      }
+    );
     return {
       form,
       name,
