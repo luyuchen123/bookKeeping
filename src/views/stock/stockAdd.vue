@@ -160,7 +160,8 @@ export default defineComponent({
       if (valid) {
         if (editIconObj.value._id) {
           const callback: ICallBack = (errStatus) => {
-            !errStatus && Notify({ type: "success", message: "修改类别成功" });
+            !errStatus &&
+              Notify({ type: "success", message: "修改库存类别成功" });
             editIconObj.value = {};
             overLayShow.value = false;
             getTypeList();
