@@ -59,7 +59,7 @@ export default defineComponent({
       () => props.editParams,
       (val: Iicon) => {
         console.log(val);
-        if (val._id) {
+        if (val?._id) {
           name.value = val.name;
           (fileList.value as any) = [{ url: val.iconClass, isImage: true }];
         } else {

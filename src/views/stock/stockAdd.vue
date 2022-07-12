@@ -4,6 +4,7 @@
     :list="typeList"
     @type-click="typeClick"
     @type-del="deleteIconType($event, typeCallBack)"
+    @type-edit="editClick"
   ></typeList>
   <van-dialog
     v-model:show="overLayShow"
@@ -12,7 +13,7 @@
     @confirm="handlerAdd"
     @cancel="overLayShow = false"
   >
-    <basic-form ref="formRef"></basic-form>
+    <basic-form ref="formRef" :edit-params="editIconObj"></basic-form>
   </van-dialog>
   <van-popup
     v-model:show="show"
@@ -135,6 +136,13 @@ export default defineComponent({
       show.value = true;
     };
 
+    //编辑类别
+    const editIconObj = ref();
+    const editClick = (params: Iicon) => {
+      editIconObj.value = params;
+      overLayShow.value = true;
+    };
+
     //删除类别
     const { deleteIconType } = typeOpt;
     const typeCallBack = (errStatus: boolean) => {
@@ -150,6 +158,16 @@ export default defineComponent({
     const handlerAdd = async () => {
       const { valid, data } = await formRef.value.onSubmit();
       if (valid) {
+        if (editIconObj.value._id) {
+          const callback: ICallBack = (errStatus) => {
+            !errStatus && Notify({ type: "success", message: "修改类别成功" });
+            editIconObj.value = {};
+            overLayShow.value = false;
+            getTypeList();
+          };
+          service.editType(data, callback);
+          return;
+        }
         const callback: ICallBack = (errStatus) => {
           !errStatus && Notify({ type: "success", message: "新增类别成功" });
           overLayShow.value = false;
@@ -189,6 +207,8 @@ export default defineComponent({
       searchVal,
       typeList,
       formRef,
+      editIconObj,
+      editClick,
       deleteIconType,
       typeCallBack,
       handlerAdd,
