@@ -1,1 +1,1 @@
-console.log("test webhook1");
+console.log("test webhook");
