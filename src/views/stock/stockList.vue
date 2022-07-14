@@ -56,80 +56,39 @@
             :class="{ isSell: re.sellPrice }"
             v-for="(re, index) in item.stockItems"
             :_id="re._id"
-            :key="index"
+            :key="`stock_${index}`"
           >
-            <van-swipe-cell>
-              <div class="item-list-show">
-                <div
-                  class="icon"
-                  :style="
-                    !re.sellPrice
-                      ? ''
-                      : re.sellPrice - re.buyingPrice > 0
-                      ? 'background: red'
-                      : 'background: green'
-                  "
-                ></div>
-                <!-- <div class="line" v-if="index !== item.stockItems.length - 1"></div> -->
-                <div class="buy">
-                  买入:
-                  <span @click="editStock(re)" v-show="!re.sellPrice">{{
-                    re.buyingPrice
-                  }}</span>
-                  <span v-show="re.sellPrice" class="disEdit">{{
-                    re.buyingPrice
-                  }}</span>
-                </div>
-                <div class="sell">
-                  <div class="sellPrive" v-if="re.sellPrice">
-                    {{ `卖出: ${re.sellPrice}` }}
-                  </div>
-                  <div class="num" v-else>
-                    <p>库存:</p>
-                    <van-icon
-                      class-prefix="iconfont el-icon-book_kucun"
-                      :badge="re._stockNum"
-                      @click="editStock(re)"
-                    />
-                  </div>
-                </div>
-                <div
-                  class="detail"
-                  :class="[
-                    re.remarks ? '' : 'noRemarks',
-                    re.sellPrice ? 'isSell' : '',
-                  ]"
-                >
-                  <div class="time">
-                    {{ !re.sellPrice ? re.timestap : `数量：${re._stockNum}` }}
-                  </div>
-                  <div class="remarks" :title="re.remarks">
-                    {{ re.remarks }}
-                  </div>
-                  <van-icon
-                    class="button iconfont"
-                    :class="
-                      !re.sellPrice
-                        ? 'el-icon-book_cangpeitubiao_chukuhuanhuochuku'
-                        : 'el-icon-book_shezhi'
-                    "
-                    plain
-                    hairline
-                    @click="editStockItem(re, !re.sellPrice ? 1 : 2)"
-                    >{{ !re.sellPrice ? "出库" : "编辑" }}</van-icon
-                  >
-                </div>
-              </div>
-              <template #right>
-                <van-button
-                  class="delBtn"
-                  type="danger"
-                  @click="deleteStock(re._id)"
-                  >删除</van-button
-                >
-              </template>
-            </van-swipe-cell>
+            <swieCell
+              :re="re"
+              @editStock="editStock"
+              @editStockItem="editStockItem"
+              @deleteStock="deleteStock"
+            />
           </template>
+
+          <van-collapse
+            v-model="item.showFLag"
+            v-show="item.historyItems.length"
+          >
+            <van-collapse-item
+              :title="`历史库存记录(${item.stockItemName})`"
+              name="1"
+            >
+              <template
+                :class="{ isSell: re.sellPrice }"
+                v-for="(re, index) in item.historyItems"
+                :_id="re._id"
+                :key="`stock_${index}`"
+              >
+                <swieCell
+                  :re="re"
+                  @editStock="editStock"
+                  @editStockItem="editStockItem"
+                  @deleteStock="deleteStock"
+                />
+              </template>
+            </van-collapse-item>
+          </van-collapse>
         </div>
       </div>
     </van-list>
@@ -151,12 +110,13 @@
 <script lang="ts">
 import { defineComponent, reactive, ref, watch } from "vue";
 import warehousing from "@/components/warehousing.vue";
+import swieCell from "@/components/swipeCell.vue";
 import { useStore } from "vuex";
 import service from "@/service/stock";
 import getImage from "@/mixins/getImage";
 import { Dialog } from "vant";
 export default defineComponent({
-  components: { warehousing },
+  components: { warehousing, swieCell },
   props: {
     getList: {
       type: Function,
@@ -256,7 +216,7 @@ export default defineComponent({
       store.commit("setEditorItemId", { id: item._id });
     };
     //出库或编辑出库的信息
-    const editStockItem = (item: any, type: number) => {
+    const editStockItem = ([item, type]: [any, 1 | 2]) => {
       store.commit("setEditorItemId", { id: item._id });
       popShow.value = true;
       popShowType.value = type; //1 ==> 出库   2===> 编辑
@@ -340,6 +300,10 @@ export default defineComponent({
       text-align: center;
       font-size: 24px;
       color: rgba(64, 64, 62, 0.903);
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .value {
       display: flex;
@@ -364,102 +328,6 @@ export default defineComponent({
   /deep/ .van-swipe-cell__right {
     display: flex;
     align-items: center;
-  }
-  &-list-show {
-    position: relative;
-    display: grid;
-    grid-template-columns: 10px repeat(2, 1fr) 45%;
-    grid-column-gap: 5px;
-    align-items: center;
-    // justify-items: flex-start;
-    height: 36px;
-    padding: 10px;
-    margin: 10px 0;
-    font-size: 18px;
-    .icon {
-      height: 10px;
-      width: 10px;
-      border-radius: 50%;
-      background: @defaultColor;
-    }
-    .line {
-      position: absolute;
-      height: 100%;
-      border-left: 1px solid @defaultColor;
-      top: 50%;
-      left: 15px;
-      transform: translateY(5px);
-    }
-    .buy {
-      text-align: left;
-      span {
-        color: rgb(35, 163, 209);
-        font-style: oblique;
-        text-decoration: underline;
-      }
-      .disEdit {
-        color: #000;
-        text-decoration: none;
-      }
-    }
-    .sell {
-      .num {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-    }
-    .detail {
-      display: grid;
-      grid-template-columns: 1fr 50px;
-      grid-template-rows: 18px 18px;
-      align-items: center;
-      // display: flex;
-      // flex-direction: column;
-      // justify-content: space-around;
-      font-size: 16px;
-      color: rgb(193, 190, 190);
-      .time {
-        font-style: oblique;
-      }
-      .remarks {
-        grid-row-start: 2;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .button {
-        color: #23a3d1;
-        grid-column-start: 2;
-        grid-row-start: 1;
-        transform: translateY(50%);
-      }
-    }
-    .detail.noRemarks {
-      grid-template-rows: 100%;
-      .button {
-        transform: translateY(0);
-      }
-    }
-    .detail.isSell {
-      // grid-template-columns: 100%;
-    }
-    .delBtn {
-      display: none;
-    }
-  }
-
-  &-list-show.isSell {
-    grid-template-columns: 10px repeat(3, 1fr);
-  }
-  &-list-show.hasDel {
-    .detail {
-      display: none;
-    }
-    .delBtn {
-      height: 36px;
-      display: inline-block;
-    }
   }
 }
 </style>

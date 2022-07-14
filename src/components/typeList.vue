@@ -166,6 +166,7 @@ export default defineComponent({
 }
 .grid {
   max-height: 90vh;
+  max-height: calc(var(--vh) * 90 - 10px);
   overflow: auto;
   display: grid;
   grid-template-columns: repeat(3, 1fr);

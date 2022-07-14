@@ -279,6 +279,9 @@ export default defineComponent({
       align-items: center;
       p {
         font-size: 18px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
   }
